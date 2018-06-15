@@ -120,6 +120,9 @@ class UserController{
     // adicionando novos usuários
     addLine(userData){
         let tr = document.createElement('tr');
+        //criando o conjunto de data para o updateUserCount()
+        tr.dataset.user = JSON.stringify(userData);
+        //criando nova linha
         tr.innerHTML =
         `<td><img src="${userData.photo}" alt="User Image" class="img-circle img-sm"></td>
         <td>${userData.name}</td>
@@ -130,6 +133,24 @@ class UserController{
         <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
         <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
         </td>`; 
+        // adicionando como filha do <td> na tabela
        this.tableEl.appendChild(tr); 
+        //atualizando numero de usuários
+        this.updateUserCount();
+    };
+
+    updateUserCount(){
+        let numberUsers = 0;
+        let numberAdmin = 0;
+        [...this.tableEl.children].forEach(tr=>{
+            numberUsers++;
+            let user = JSON.parse(tr.dataset.user);
+            // chamando direto da classe user pq o stringify faz ele perder o escopo
+            if(user._admin){
+                numberAdmin++;
+            }
+        });
+        document.querySelector("#user-numbers").innerHTML = numberUsers;
+        document.querySelector("#user-numbers-admin").innerHTML = numberAdmin;
     };
 };
