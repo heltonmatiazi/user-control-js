@@ -9,6 +9,7 @@ class UserController{
         // botão pressionado, iniciando processo de adicionar usuário
         this.onFormSubmit();
         this.onEdit();
+        this.selectAll();
     };
 
     // controle primário do formulário - botão submit
@@ -33,6 +34,8 @@ class UserController{
                 // arrow functions são usadas para não alterar o contexto do .this
                 (content)=>{
                     values.photo = content;
+                    //inserindo no session storage
+                    this.insertIntoStorage(values);
                     /* gerando o objeto user com base nos inputs do usuario
                     e adicionando eles na tabela */ 
                     this.addLine(values);
@@ -101,7 +104,7 @@ class UserController{
                 user[field.name] = field.value;
             };
         });
-        console.log(user);    
+   
         // impedindo envio do formulário caso campo vazio seja detectado
         if(!isValid){
             return false;
@@ -122,6 +125,8 @@ class UserController{
     // adicionando novos usuários
     addLine(userData){
         let tr = document.createElement('tr');
+
+
         //criando o conjunto de data para o updateUserCount()
         tr.dataset.user = JSON.stringify(userData);
         //criando nova linha
@@ -135,17 +140,38 @@ class UserController{
         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
         <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
         </td>`; 
-        
-
         this.addTrEvents(tr);
-
         // adicionando como filha do <td> na tabela
        this.tableEl.appendChild(tr); 
         //atualizando numero de usuários
         this.updateUserCount();
     };
 
-
+    //buscando todos os users da session
+    preloadUsers(){
+        let users = [];
+        if(localStorage.getItem("users")){
+            users = JSON.parse(localStorage.getItem("users"));
+        } 
+        return users;
+    }
+    //adicionando todos os users da session storage na tabela
+    selectAll(){
+       let users =  this.preloadUsers();
+       users.forEach(dataUser=>{
+           let user = new User();
+           user.loadFromJson(dataUser);
+           this.addLine(user);
+       });
+    };
+    
+    //guardando os dados passados no local storage
+    insertIntoStorage(data){
+       let users = this.preloadUsers();
+        users.push(data);
+        //sessionStorage.setItem("users",JSON.stringify(users));
+        localStorage.setItem("users",JSON.stringify(users));
+    }
 
     addTrEvents(tr){
         //controlando o press do botão de EXCLUIR

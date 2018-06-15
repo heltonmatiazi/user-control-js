@@ -11,6 +11,23 @@ class User {
         this._register = new Date();
     };
 
+
+
+    loadFromJson(data){
+       
+        for(let name in data){
+            switch(name){
+                case '_register':
+                    this[name] = new Date(data[name]);
+                    break;
+                default:
+                this.name = data[name];
+            }
+        }    
+    }
+
+
+
     get name(){
         return this._name;
     };
