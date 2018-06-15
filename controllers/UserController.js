@@ -1,5 +1,5 @@
 /* esse código é comentado no limiar da demência pra garantir 
-que tudo que ele faz é claro e fácil de atualizar */
+que tudo que ele faz esta claro e fácil de debugar */
 
 class UserController{
     constructor(formIdCreate,formIdUpdate,tableId){
@@ -133,7 +133,7 @@ class UserController{
         <td>${Util.dateFormat(userData.register)}</td>
         <td>
         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+        <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
         </td>`; 
         
 
@@ -148,6 +148,13 @@ class UserController{
 
 
     addTrEvents(tr){
+        //controlando o press do botão de EXCLUIR
+        tr.querySelector(".btn-delete").addEventListener('click',e=>{
+            if(confirm("Deseja realmente excluir?")){
+                tr.remove();
+                this.updateUserCount();
+            };
+        });
         //controlando o press do botão EDIT
         tr.querySelector(".btn-edit").addEventListener('click',e=>{
             //gerando objeto com os dados do usuario selecionado
@@ -233,10 +240,6 @@ class UserController{
             this.getPhoto(this.formUpdateEl).then(
                 // arrow functions são usadas para não alterar o contexto do .this
                 (content)=>{
- 
- 
-
-            
                      //se a foto estiver vazia, retorne ao valor anterior (foto default)
                     if(!values.photo) {
                         result._photo = userOld._photo;
@@ -256,7 +259,7 @@ class UserController{
                         <td>${Util.dateFormat(result._register)}</td>
                         <td>
                         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                        <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
                         </td>`; 
                     //atualiza a linha da tabela
                     this.addTrEvents(tr);
