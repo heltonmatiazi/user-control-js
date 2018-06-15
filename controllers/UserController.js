@@ -2,13 +2,12 @@
 que tudo que ele faz é claro e fácil de manter */
 
 class UserController{
-   
     constructor(formId,tableId){
         this.formEl = document.getElementById(formId);
         this.tableEl = document.getElementById(tableId);
         // botão pressionado, iniciando processo de adicionar usuário
         this.OnFormSubmit();
-    }
+    };
 
     // controle primário do formulário - botão submit
     OnFormSubmit(){
@@ -17,6 +16,9 @@ class UserController{
         this.formEl.addEventListener("submit", (e) => {
             // impedindo o refresh da página
             e.preventDefault();
+            // impedindo que vários forms sejam enviados caso o usuário aperte o botão suscessivas vezes
+            let btn = this.formEl.querySelector("[type=submit]");
+            btn.disabled = true;
             // instanciando os valores do form
             let values = this.getFormValues();
             // .then vai passar o resultado da promessa
@@ -27,12 +29,14 @@ class UserController{
                     /* gerando o objeto user com base nos inputs do usuario
                     e adicionando eles na tabela */ 
                     this.addLine(values);
+                    // limpando o formulário
+                    this.formEl.reset();
+                    // reabilitando o botão
+                    btn.disabled = false;
                 },
                 (e)=>{
                     console.error(e);
                 });
-            //salvando a imagem passada no getFormValues()
-          
         });
     };
 
@@ -65,9 +69,8 @@ class UserController{
                 }else{
                     // nesse caso o usuário terá uma imagem padrão carregada
                     resolve('dist/img/boxed-bg.jpg');
-                }
+                };
         });
-       
     };
 
     getFormValues(){
@@ -83,7 +86,7 @@ class UserController{
                 user[field.name] = field.checked;
             }else{
                 user[field.name] = field.value;
-            }
+            };
         });
         console.log(user);    
         // criando um objeto utilizando o modelo de user.js
@@ -97,7 +100,7 @@ class UserController{
             user.photo,
             user.admin
         );
-    }
+    };
 
     // adicionando novos usuários
     addLine(userData){
@@ -107,7 +110,7 @@ class UserController{
         <td>${userData.name}</td>
         <td>${userData.email}</td>
         <td>${(userData.admin)?'Sim':'Não'}</td>
-        <td>${userData.birth}</td>
+        <td>${Util.dateFormat(userData.register)}</td>
         <td>
         <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
         <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
