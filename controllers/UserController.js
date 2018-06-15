@@ -21,6 +21,11 @@ class UserController{
             btn.disabled = true;
             // instanciando os valores do form
             let values = this.getFormValues();
+            /* teste para abortar envio caso algum dos campos requeridos estejam vazios.
+            evita o erro de cast da foto quando o isValid retorna false ao invés de um objeto */
+            if(!values){
+                return false;
+            }
             // .then vai passar o resultado da promessa
             this.getPhoto().then(
                 // arrow functions são usadas para não alterar o contexto do .this
@@ -76,12 +81,18 @@ class UserController{
     getFormValues(){
         // placeholder para usuário
         let user = {};
+        let isValid = true;
         // controle primário do formulário - botão submit
         [...this.formEl.elements].forEach(function(field){
+            // validating empty fields
+            if(['name','email','password'].indexOf(field.name) > -1 && !field.value){
+              field.parentElement.classList.add('has-error');
+              isValid = false;
+            };
             //teste para determinar qual gender está checado. 
             if(field.name == 'gender' && field.checked){
                 user[field.name] = field.value;
-            // após o teste, seto todos os outros valores do objeto no forEach
+            // após o teste, seta todos os outros valores do objeto no forEach
             }else if(field.name =='admin') {
                 user[field.name] = field.checked;
             }else{
@@ -89,6 +100,10 @@ class UserController{
             };
         });
         console.log(user);    
+        // impedindo envio do formulário caso campo vazio seja detectado
+        if(!isValid){
+            return false;
+        }
         // criando um objeto utilizando o modelo de user.js
         return  new User(
             user.name,
