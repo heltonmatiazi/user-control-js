@@ -1,3 +1,6 @@
+/* esse código é comentado no limiar da demência pra garantir 
+que tudo que ele faz é claro e fácil de manter */
+
 class UserController{
    
     constructor(formId,tableId){
@@ -7,19 +10,48 @@ class UserController{
         this.OnFormSubmit();
     }
 
-    //    controle primário do formulário - botão submit
+    // controle primário do formulário - botão submit
     OnFormSubmit(){
         /*  => denota arrow function, resolve meu conflito de escopo, que não muda devido a ausência da
          palavra function */
         this.formEl.addEventListener("submit", (e) => {
             // impedindo o refresh da página
             e.preventDefault();
-            /* gerando o objeto user com base nos inputs do usuario
-            e adicionando eles na tabela */ 
-            this.addLine(this.getFormValues());
+            // instanciando os valores do form
+            let values = this.getFormValues();
+
+            this.getPhoto((content)=>{
+                //salvando a imagem passada no getPhoto()
+                values.photo = content;
+                /* gerando o objeto user com base nos inputs do usuario
+                e adicionando eles na tabela */ 
+                this.addLine(values);
+
+            });
         });
     };
 
+    // salvando a imagem do usuário com fileReader
+    getPhoto(callback){
+
+        let fileReader = new FileReader();
+        // separando a imagem passada no form com .filter()
+        let elements = [...this.formEl.elements].filter(item=>{
+            if (item.name === 'photo'){
+                return    item 
+            };
+        })
+        // o .filter gera um novo array de elementos, aqui a imagem será selecionada
+        let file = elements[0].files[0];
+        // o onLoad é um metodo obrigatório do fileReader. Ele processa a imagem que foi transformada em
+        // base64 pelo readAsDataURL
+        fileReader.onload = ()=>{
+            callback(fileReader.result);
+        };
+        // o readAsDataURL passa o arquivo serializado para o onLoad
+        fileReader.readAsDataURL(file);
+
+    };
 
     getFormValues(){
         // placeholder para usuário
@@ -52,7 +84,7 @@ class UserController{
     addLine(userData){
        this.tableEl.innerHTML = ` 
         <tr>
-            <td><img src="dist/img/user1-128x128.jpg" alt="User Image" class="img-circle img-sm"></td>
+            <td><img src="${userData.photo}" alt="User Image" class="img-circle img-sm"></td>
             <td>${userData.name}</td>
             <td>${userData.email}</td>
             <td>${userData.admin}</td>
