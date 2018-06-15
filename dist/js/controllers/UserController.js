@@ -6,7 +6,7 @@ class UserController{
     constructor(formId,tableId){
         this.formEl = document.getElementById(formId);
         this.tableEl = document.getElementById(tableId);
-
+        // botão pressionado, iniciando processo de adicionar usuário
         this.OnFormSubmit();
     }
 
@@ -19,38 +19,49 @@ class UserController{
             e.preventDefault();
             // instanciando os valores do form
             let values = this.getFormValues();
-
-            this.getPhoto((content)=>{
-                //salvando a imagem passada no getPhoto()
-                values.photo = content;
-                /* gerando o objeto user com base nos inputs do usuario
-                e adicionando eles na tabela */ 
-                this.addLine(values);
-
-            });
+            // .then vai passar o resultado da promessa
+            this.getPhoto().then(
+                // arrow functions são usadas para não alterar o contexto do .this
+                (content)=>{
+                    values.photo = content;
+                    /* gerando o objeto user com base nos inputs do usuario
+                    e adicionando eles na tabela */ 
+                    this.addLine(values);
+                },
+                (e)=>{
+                    console.error(e);
+                });
+            //salvando a imagem passada no getFormValues()
+          
         });
     };
 
     // salvando a imagem do usuário com fileReader
-    getPhoto(callback){
-
-        let fileReader = new FileReader();
-        // separando a imagem passada no form com .filter()
-        let elements = [...this.formEl.elements].filter(item=>{
-            if (item.name === 'photo'){
-                return    item 
+    getPhoto(){
+        // a promessa usa resolve para caso a função rode e reject caso não
+        return new Promise((resolve,reject)=>{
+            let fileReader = new FileReader();
+            // separando a imagem passada no form com .filter()
+            let elements = [...this.formEl.elements].filter(item=>{
+                if (item.name === 'photo'){
+                    return    item;
+                };
+            });
+            // o .filter gera um novo array de elementos, aqui a imagem será selecionada
+            let file = elements[0].files[0];
+            // o onLoad é um metodo obrigatório do fileReader. Ele processa a imagem que foi transformada em
+            // base64 pelo readAsDataURL
+            fileReader.onload = ()=>{
+                resolve(fileReader.result);
             };
-        })
-        // o .filter gera um novo array de elementos, aqui a imagem será selecionada
-        let file = elements[0].files[0];
-        // o onLoad é um metodo obrigatório do fileReader. Ele processa a imagem que foi transformada em
-        // base64 pelo readAsDataURL
-        fileReader.onload = ()=>{
-            callback(fileReader.result);
-        };
-        // o readAsDataURL passa o arquivo serializado para o onLoad
-        fileReader.readAsDataURL(file);
-
+            // isso não ser camelCase me deixa triggered
+            fileReader.onerror = ()=>{
+                reject(e);
+            }
+            // o readAsDataURL passa o arquivo serializado para o onLoad
+            fileReader.readAsDataURL(file);
+        });
+       
     };
 
     getFormValues(){
